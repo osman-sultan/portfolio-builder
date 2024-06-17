@@ -52,6 +52,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SECTORS } from "@/lib/schemas";
 import type { PortfolioTableProps } from "@/lib/types";
 import { useFieldArray } from "react-hook-form";
 
@@ -67,7 +68,12 @@ export const PortfolioTable = ({
   });
 
   const addRow = () => {
-    append({ ticker: "", minWeight: 0, maxWeight: 1 });
+    append({
+      ticker: "",
+      minWeight: undefined,
+      maxWeight: undefined,
+      sector: undefined,
+    });
   };
 
   const deleteRow = (index: number) => {
@@ -86,10 +92,19 @@ export const PortfolioTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="px-4 py-3 text-left">Ticker</TableHead>
-              <TableHead className="px-4 py-3 text-left">Min. Weight</TableHead>
-              <TableHead className="px-4 py-3 text-left">Max. Weight</TableHead>
-              <TableHead className="px-4 py-3 text-left">Actions</TableHead>
+              <TableHead className="px-4 py-3 text-left">
+                Ticker (Required)
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left">
+                Min. Weight (Optional)
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left">
+                Max. Weight (Optional)
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left">
+                Sector (Optional)
+              </TableHead>
+              <TableHead className="px-4 py-3 text-left">Delete</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -193,6 +208,71 @@ export const PortfolioTable = ({
                   />
                 </TableCell>
                 <TableCell className="px-4 py-3">
+                  <FormField
+                    control={form.control}
+                    name={`stocks.${index}.sector`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-full justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? field.value : "Select sector..."}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            align="start"
+                            className="w-[200px] p-0"
+                          >
+                            <Command>
+                              <CommandInput placeholder="Search sectors..." />
+                              <CommandList>
+                                <CommandEmpty>No sector found.</CommandEmpty>
+                                <CommandGroup>
+                                  <ScrollArea className="h-32 w-48 rounded-md border">
+                                    {SECTORS.map((sector) => (
+                                      <CommandItem
+                                        key={sector}
+                                        value={sector}
+                                        onSelect={() =>
+                                          form.setValue(
+                                            `stocks.${index}.sector`,
+                                            sector
+                                          )
+                                        }
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            sector === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                        {sector}
+                                      </CommandItem>
+                                    ))}
+                                  </ScrollArea>
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TableCell>
+                <TableCell className="px-4 py-3">
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button variant="ghost">
@@ -226,7 +306,7 @@ export const PortfolioTable = ({
         </Table>
       </CardContent>
       <CardFooter className="justify-end border-t p-4">
-        <Button className="gap-1" onClick={addRow}>
+        <Button type="button" className="gap-1" onClick={addRow}>
           <PlusIcon className="mr-2 h-4 w-4" />
           Add Stock
         </Button>

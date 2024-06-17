@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
-import { securityRowSchema } from "../schemas";
+import { FormSchema } from "../schemas";
 
 export type Ticker = {
   value: string;
@@ -11,5 +11,5 @@ export type PortfolioTableProps = {
   title: "Stocks" | "ETFs";
   type: "stocks" | "etfs";
   tickerData: Ticker[];
-  form: UseFormReturn<z.infer<typeof securityRowSchema>>;
+  form: UseFormReturn<z.infer<typeof FormSchema>>;
 };
