@@ -127,8 +127,6 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
               }));
               onDataParsed(tickerData, results.data); // Pass both tickerData and full CSV data to parent component
               toast.success("Your data is now ready for use!");
-            } else {
-              toast.error("Invalid CSV format.");
             }
           }
         },
