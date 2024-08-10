@@ -186,8 +186,14 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
             )}
           />
         </div>
-        <Button type="submit" className="mt-4 mx-auto block">
-          Use this data
+        <Button
+          type="submit"
+          className="mt-4 mx-auto block"
+          disabled={!form.watch("files")?.length}
+        >
+          {form.watch("files")?.length
+            ? "Use this data"
+            : "No data uploaded yet"}
         </Button>
       </form>
     </Form>

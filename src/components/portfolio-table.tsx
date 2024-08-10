@@ -62,6 +62,8 @@ export const PortfolioTable = ({
   tickerData,
   form,
 }: PortfolioTableProps) => {
+  const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
+
   const { fields, append, remove } = useFieldArray({
     name: "stocks",
     control: form.control,
@@ -77,6 +79,10 @@ export const PortfolioTable = ({
   };
 
   const deleteRow = (index: number) => {
+    const tickerToRemove = form.getValues(`stocks.${index}.ticker`);
+    setSelectedTickers((prev) =>
+      prev.filter((ticker) => ticker !== tickerToRemove)
+    );
     remove(index);
   };
 
@@ -123,7 +129,7 @@ export const PortfolioTable = ({
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "w-full justify-between",
+                                  "w-[200px] justify-between", // Set a fixed width here
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -144,32 +150,47 @@ export const PortfolioTable = ({
                               <CommandInput placeholder="Search tickers..." />
                               <CommandList>
                                 <CommandEmpty>No ticker found.</CommandEmpty>
-                                <CommandGroup>
-                                  <ScrollArea className="h-32 w-48 rounded-md border">
-                                    {tickerData.map((ticker) => (
-                                      <CommandItem
-                                        key={ticker.label}
-                                        value={ticker.value}
-                                        onSelect={() =>
-                                          form.setValue(
-                                            `stocks.${index}.ticker`,
-                                            ticker.value
-                                          )
-                                        }
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4",
-                                            ticker.value === field.value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
-                                        {ticker.label}
-                                      </CommandItem>
-                                    ))}
+                                {tickerData && tickerData.length > 0 && (
+                                  <ScrollArea className="h-72">
+                                    <CommandGroup>
+                                      {tickerData
+                                        .filter(
+                                          (ticker) =>
+                                            !selectedTickers.includes(
+                                              ticker.value
+                                            ) || ticker.value === field.value
+                                        )
+                                        .map((ticker) => (
+                                          <CommandItem
+                                            key={ticker.value}
+                                            onSelect={() => {
+                                              if (field.value) {
+                                                setSelectedTickers((prev) =>
+                                                  prev.filter(
+                                                    (t) => t !== field.value
+                                                  )
+                                                );
+                                              }
+                                              form.setValue(
+                                                `stocks.${index}.ticker`,
+                                                ticker.value
+                                              );
+                                              setSelectedTickers((prev) => [
+                                                ...prev,
+                                                ticker.value,
+                                              ]);
+                                            }}
+                                            className="flex justify-between items-center"
+                                          >
+                                            {ticker.label}
+                                            {field.value === ticker.value && (
+                                              <Check className="h-4 w-4" />
+                                            )}
+                                          </CommandItem>
+                                        ))}
+                                    </CommandGroup>
                                   </ScrollArea>
-                                </CommandGroup>
+                                )}
                               </CommandList>
                             </Command>
                           </PopoverContent>

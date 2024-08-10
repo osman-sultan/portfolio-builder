@@ -114,11 +114,21 @@ const MaximizeDiversificationFactorSchema = z
   })
   .merge(CommonSchema);
 
-const RiskParitySchema = z
-  .object({
-    optimizationMethod: z.literal("risk_parity"),
-  })
-  .merge(CommonSchema);
+const BudgetRowSchema = z.object({
+  stock: z.string().min(1, { message: "Stock is required" }),
+  weight: z.coerce
+    .number({ message: "Weight must be a number" })
+    .min(0, { message: "Weight must be at least 0" }),
+});
+
+const RiskParitySchema = z.object({
+  optimizationMethod: z.literal("risk_parity"),
+  budget: z.array(BudgetRowSchema),
+  alphaDecay: z.coerce
+    .number()
+    .gt(0, { message: "Alpha decay must be greater than 0" })
+    .optional(),
+});
 
 const FormSchema = z.object({
   stocks: z.array(SecurityRowSchema),

@@ -28,6 +28,14 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { FormSchema, OPTIMIZATION_METHODS, SECTORS } from "@/lib/schemas";
 import type { Ticker } from "@/lib/types";
@@ -132,7 +140,7 @@ export default function Home() {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select..." />
+                      <SelectValue placeholder="Select optimization method" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -152,147 +160,62 @@ export default function Home() {
           />
 
           {optimizationMethod === "maximize_return" && (
-            <>
-              <FormField
-                control={form.control}
-                name="optimizationMethod.maxRisk"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Risk</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="optimizationMethod.alphaDecay"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alpha Decay</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="optimizationMethod.maxLeverage"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Leverage</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="optimizationMethod.shortSell"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Short Sell</FormLabel>
-                      <FormDescription>
-                        Enable short selling in the portfolio.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <Collapsible
-                open={isOpen}
-                onOpenChange={setIsOpen}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between space-x-4">
-                  <h4 className="text-sm">Sector Weights</h4>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-9 p-0">
-                      <ChevronsUpDown className="h-4 w-4" />
-                      <span className="sr-only">Toggle</span>
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="space-y-2">
-                  <div className="space-y-4">
-                    {SECTORS.map((sector) => (
-                      <div key={sector} className="flex space-x-4">
-                        <FormField
-                          control={form.control}
-                          name={`optimizationMethod.sectorWeights.${sector}.minWeight`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{sector} Min Weight</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`optimizationMethod.sectorWeights.${sector}.maxWeight`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{sector} Max Weight</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </>
+            <FormField
+              control={form.control}
+              name="optimizationMethod.maxRisk"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Max Risk</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Maximum risk tolerance for the portfolio.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
           {optimizationMethod === "minimize_risk" && (
+            <FormField
+              control={form.control}
+              name="optimizationMethod.minReturn"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Min Return</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Minimum return target for the portfolio.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          <FormField
+            control={form.control}
+            name="optimizationMethod.alphaDecay"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Alpha Decay</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Rate of decay for alpha values.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {optimizationMethod !== "risk_parity" && (
             <>
-              <FormField
-                control={form.control}
-                name="optimizationMethod.minReturn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Min Return</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="optimizationMethod.alphaDecay"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Alpha Decay</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="optimizationMethod.maxLeverage"
@@ -300,12 +223,16 @@ export default function Home() {
                   <FormItem>
                     <FormLabel>Max Leverage</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} />
+                      <Input type="number" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      Maximum leverage allowed in the portfolio.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="optimizationMethod.shortSell"
@@ -327,128 +254,142 @@ export default function Home() {
                 )}
               />
 
-              <Collapsible
-                open={isOpen}
-                onOpenChange={setIsOpen}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between space-x-4">
-                  <h4 className="text-sm">Sector Weights</h4>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-9 p-0">
-                      <ChevronsUpDown className="h-4 w-4" />
-                      <span className="sr-only">Toggle</span>
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="space-y-2">
-                  <div className="space-y-4">
-                    {SECTORS.map((sector) => (
-                      <div key={sector} className="flex space-x-4">
-                        <FormField
-                          control={form.control}
-                          name={`optimizationMethod.sectorWeights.${sector}.minWeight`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{sector} Min Weight</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`optimizationMethod.sectorWeights.${sector}.maxWeight`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{sector} Max Weight</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </>
-          )}
-
-          {[
-            "maximize_sharpe_ratio",
-            "maximize_diversification_factor",
-            "risk_parity",
-          ].includes(optimizationMethod) && (
-            <>
               <FormField
                 control={form.control}
-                name="optimizationMethod.alphaDecay"
+                name="optimizationMethod.sectorWeights"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Alpha Decay</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" {...field} />
-                    </FormControl>
+                    <FormLabel>Sector Weights</FormLabel>
+                    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-between"
+                        >
+                          <span className="text-sm text-muted-foreground font-normal">
+                            {isOpen ? "Hide" : "Reveal"}
+                          </span>
+                          <ChevronsUpDown className="h-4 w-4" />
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-2">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Sector</TableHead>
+                              <TableHead>Min Weight</TableHead>
+                              <TableHead>Max Weight</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {SECTORS.map((sector) => (
+                              <TableRow key={sector}>
+                                <TableCell>{sector}</TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    {...field}
+                                    value={
+                                      field.value?.[sector]?.minWeight || ""
+                                    }
+                                    onChange={(e) => {
+                                      const newSectorWeights = {
+                                        ...field.value,
+                                      };
+                                      newSectorWeights[sector] = {
+                                        ...newSectorWeights[sector],
+                                        minWeight: parseFloat(e.target.value),
+                                      };
+                                      field.onChange(newSectorWeights);
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  <Input
+                                    type="number"
+                                    {...field}
+                                    value={
+                                      field.value?.[sector]?.maxWeight || ""
+                                    }
+                                    onChange={(e) => {
+                                      const newSectorWeights = {
+                                        ...field.value,
+                                      };
+                                      newSectorWeights[sector] = {
+                                        ...newSectorWeights[sector],
+                                        maxWeight: parseFloat(e.target.value),
+                                      };
+                                      field.onChange(newSectorWeights);
+                                    }}
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CollapsibleContent>
+                    </Collapsible>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <Collapsible
-                open={isOpen}
-                onOpenChange={setIsOpen}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between space-x-4">
-                  <h4 className="text-sm">Sector Weights</h4>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-9 p-0">
-                      <ChevronsUpDown className="h-4 w-4" />
-                      <span className="sr-only">Toggle</span>
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="space-y-2">
-                  <div className="space-y-4">
-                    {SECTORS.map((sector) => (
-                      <div key={sector} className="flex space-x-4">
-                        <FormField
-                          control={form.control}
-                          name={`optimizationMethod.sectorWeights.${sector}.minWeight`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{sector} Min Weight</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`optimizationMethod.sectorWeights.${sector}.maxWeight`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{sector} Max Weight</FormLabel>
-                              <FormControl>
-                                <Input type="number" step="0.01" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
             </>
+          )}
+
+          {optimizationMethod === "risk_parity" && (
+            <FormField
+              control={form.control}
+              name="optimizationMethod.budget"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Budget</FormLabel>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Stock</TableHead>
+                        <TableHead>Weight</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {form.watch("stocks").length > 0 ? (
+                        form.watch("stocks").map((stock, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              {stock.ticker
+                                ? stock.ticker.toUpperCase()
+                                : "Ticker not selected..."}
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                {...field}
+                                value={field.value?.[index]?.weight || ""}
+                                onChange={(e) => {
+                                  const newBudget = [...(field.value || [])];
+                                  newBudget[index] = {
+                                    stock: stock.ticker,
+                                    weight: parseFloat(e.target.value),
+                                  };
+                                  field.onChange(newBudget);
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={2} className="text-center">
+                            No stocks added yet
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
           <Button type="submit" className="mt-12 rounded-lg px-6 py-3">
