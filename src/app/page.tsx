@@ -5,6 +5,13 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { PortfolioTable } from "@/components/portfolio-table";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -42,6 +49,7 @@ import type { Ticker } from "@/lib/types";
 import { capitalize } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -53,6 +61,7 @@ export default function Home() {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    mode: "onChange",
     defaultValues: {
       stocks: [
         {
@@ -106,7 +115,14 @@ export default function Home() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-between p-24">
+      <div className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#2d3748_1px,transparent_1px)] [background-size:16px_16px]"></div>
+      {/* background */}
+      <div className="fixed top-0 -z-10 h-full w-full">
+        <div className="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(34,139,34,0.5)] opacity-50 blur-[80px]"></div>
+      </div>
+
       <div className="absolute top-0 right-0 m-4">
+        <Image src="arrow.svg" width={100} height={100} alt="Arrow" />
         <ModeToggle />
       </div>
 
@@ -233,26 +249,32 @@ export default function Home() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="optimizationMethod.shortSell"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Short Sell</FormLabel>
-                      <FormDescription>
-                        Enable short selling in the portfolio.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <Card>
+                <CardContent className="pt-6">
+                  <FormField
+                    control={form.control}
+                    name="optimizationMethod.shortSell"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start justify-between space-y-0">
+                        <div>
+                          <FormLabel className="text-sm font-semibold">
+                            Short Sell
+                          </FormLabel>
+                          <FormDescription className="text-sm text-muted-foreground">
+                            Enable short selling in the portfolio.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
               <FormField
                 control={form.control}
@@ -287,41 +309,53 @@ export default function Home() {
                               <TableRow key={sector}>
                                 <TableCell>{sector}</TableCell>
                                 <TableCell>
-                                  <Input
-                                    type="number"
-                                    {...field}
-                                    value={
-                                      field.value?.[sector]?.minWeight || ""
-                                    }
-                                    onChange={(e) => {
-                                      const newSectorWeights = {
-                                        ...field.value,
-                                      };
-                                      newSectorWeights[sector] = {
-                                        ...newSectorWeights[sector],
-                                        minWeight: parseFloat(e.target.value),
-                                      };
-                                      field.onChange(newSectorWeights);
-                                    }}
+                                  <FormField
+                                    control={form.control}
+                                    name={`optimizationMethod.sectorWeights.${sector}.minWeight`}
+                                    render={({ field: minWeightField }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            {...minWeightField}
+                                            onChange={(e) => {
+                                              const value = e.target.value;
+                                              minWeightField.onChange(
+                                                value === ""
+                                                  ? ""
+                                                  : parseFloat(value)
+                                              );
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
                                   />
                                 </TableCell>
                                 <TableCell>
-                                  <Input
-                                    type="number"
-                                    {...field}
-                                    value={
-                                      field.value?.[sector]?.maxWeight || ""
-                                    }
-                                    onChange={(e) => {
-                                      const newSectorWeights = {
-                                        ...field.value,
-                                      };
-                                      newSectorWeights[sector] = {
-                                        ...newSectorWeights[sector],
-                                        maxWeight: parseFloat(e.target.value),
-                                      };
-                                      field.onChange(newSectorWeights);
-                                    }}
+                                  <FormField
+                                    control={form.control}
+                                    name={`optimizationMethod.sectorWeights.${sector}.maxWeight`}
+                                    render={({ field: maxWeightField }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <Input
+                                            type="number"
+                                            {...maxWeightField}
+                                            onChange={(e) => {
+                                              const value = e.target.value;
+                                              maxWeightField.onChange(
+                                                value === ""
+                                                  ? ""
+                                                  : parseFloat(value)
+                                              );
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
                                   />
                                 </TableCell>
                               </TableRow>
@@ -330,7 +364,6 @@ export default function Home() {
                         </Table>
                       </CollapsibleContent>
                     </Collapsible>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -352,48 +385,52 @@ export default function Home() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {form.watch("stocks").length > 0 ? (
-                        form.watch("stocks").map((stock, index) => (
-                          <TableRow key={index}>
-                            <TableCell>
-                              {stock.ticker
-                                ? stock.ticker.toUpperCase()
-                                : "Ticker not selected..."}
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="number"
-                                {...field}
-                                value={field.value?.[index]?.weight || ""}
-                                onChange={(e) => {
-                                  const newBudget = [...(field.value || [])];
-                                  newBudget[index] = {
-                                    stock: stock.ticker,
-                                    weight: parseFloat(e.target.value),
-                                  };
-                                  field.onChange(newBudget);
-                                }}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center">
-                            No stocks added yet
+                      {form.watch("stocks").map((stock, index) => (
+                        <TableRow key={index}>
+                          <TableCell>
+                            {stock.ticker
+                              ? stock.ticker.toUpperCase()
+                              : "No Ticker selected"}
+                          </TableCell>
+                          <TableCell>
+                            <FormField
+                              control={form.control}
+                              name={`optimizationMethod.budget.${index}.weight`}
+                              render={({ field: weightField }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...weightField}
+                                      value={weightField.value ?? ""}
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.value === ""
+                                            ? null
+                                            : parseFloat(e.target.value);
+                                        weightField.onChange(value);
+                                        form.trigger(
+                                          `optimizationMethod.budget.${index}.weight`
+                                        );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </TableCell>
                         </TableRow>
-                      )}
+                      ))}
                     </TableBody>
                   </Table>
-                  <FormMessage />
                 </FormItem>
               )}
             />
           )}
 
           <Button type="submit" className="mt-12 rounded-lg px-6 py-3">
-            Submit
+            Optimize 📈
           </Button>
         </form>
       </Form>

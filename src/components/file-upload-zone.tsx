@@ -7,6 +7,7 @@ import {
   FileUploader,
   FileUploaderContent,
 } from "@/components/ui/upload";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Paperclip, Trash } from "lucide-react";
 import Papa from "papaparse";
@@ -155,7 +156,7 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                   reSelect={true}
                   className="relative bg-background rounded-lg p-2"
                 >
-                  <FileInput className="outline-dashed outline-1 outline-white">
+                  <FileInput className="outline-dashed outline-2 outline-gray-300 dark:outline-white">
                     <div className="flex items-center justify-center flex-col pt-3 pb-4 w-full">
                       <FileSvgDraw />
                     </div>
@@ -188,7 +189,10 @@ export const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         </div>
         <Button
           type="submit"
-          className="mt-4 mx-auto block"
+          className={cn(
+            "mt-4 mx-auto block",
+            !form.watch("files")?.length && "cursor-not-allowed opacity-50"
+          )}
           disabled={!form.watch("files")?.length}
         >
           {form.watch("files")?.length

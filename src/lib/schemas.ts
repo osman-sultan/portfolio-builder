@@ -41,7 +41,7 @@ const WeightSchema = z.object({
 
 const SectorWeightsSchema = z.record(z.string(), WeightSchema).optional();
 
-const SecurityRowSchema = z
+const StockRowSchema = z
   .object({
     ticker: z.string().min(1, { message: "Ticker is required" }),
     minWeight: z.coerce
@@ -115,23 +115,26 @@ const MaximizeDiversificationFactorSchema = z
   .merge(CommonSchema);
 
 const BudgetRowSchema = z.object({
-  stock: z.string().min(1, { message: "Stock is required" }),
-  weight: z.coerce
-    .number({ message: "Weight must be a number" })
-    .min(0, { message: "Weight must be at least 0" }),
+  weight: z
+    .number()
+    .min(0, { message: "Weight must be at least 0" })
+    .nullable()
+    .optional(),
 });
+
+const BudgetSchema = z.array(BudgetRowSchema).optional();
 
 const RiskParitySchema = z.object({
   optimizationMethod: z.literal("risk_parity"),
-  budget: z.array(BudgetRowSchema),
   alphaDecay: z.coerce
     .number()
     .gt(0, { message: "Alpha decay must be greater than 0" })
     .optional(),
+  budget: BudgetSchema,
 });
 
 const FormSchema = z.object({
-  stocks: z.array(SecurityRowSchema),
+  stocks: z.array(StockRowSchema),
   optimizationMethod: z.discriminatedUnion("optimizationMethod", [
     MaximizeReturnSchema,
     MinimizeRiskSchema,
